@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Bank - Modern Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Basic Reset & Font */
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            /* New Gradient Background */
+            background: linear-gradient(to bottom right, #6a5acd, #8a2be2, #4169e1); /* Purple to Blue gradient */
+            color: #374151; /* Dark gray text */
+            line-height: 1.6;
+            min-height: 100vh; /* Ensure gradient covers full viewport height */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styling */
+        .header {
+            background-color: rgba(30, 58, 138, 0.8); /* Slightly transparent dark blue */
+            color: #ffffff;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky; /* Make header sticky */
+            top: 0;
+            z-index: 1000; /* Ensure header is on top */
+            backdrop-filter: blur(5px); /* Subtle blur for modern feel */
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .header .logo:hover {
+            color: #bfdbfe; /* Light blue on hover */
+        }
+
+        .header nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .header nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .header nav a:hover {
+            color: #bfdbfe;
+        }
+
+        .header .user-profile-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem; /* Space between user name and login button */
+        }
+
+        .header .user-profile-nav .user-name-link {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header .user-profile-nav .user-name-link:hover {
+            color: #bfdbfe;
+        }
+
+        .profile-photo {
+            width: 40px; /* Size of the profile photo */
+            height: 40px;
+            border-radius: 50%; /* Make it circular */
+            background-color: #cccccc; /* Placeholder background */
+            object-fit: cover; /* Ensure image covers the area */
+            border: 2px solid #ffffff; /* White border */
+        }
+
+        .header .auth-buttons button {
+            background-color: #22c55e; /* Green */
+            color: #ffffff;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .header .auth-buttons button:hover {
+            background-color: #16a34a; /* Darker green */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Main Content Area Styling */
+        .main-wrapper {
+            flex-grow: 1; /* Allow main content to take available space */
+            padding: 2rem 0; /* Vertical padding around the content card */
+        }
+
+        .main-content-card {
+            background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            backdrop-filter: blur(8px); /* Blur effect for the card */
+        }
+
+        /* Page Management (for Dashboard and Profile) */
+        .page-section {
+            display: none; /* Hide all pages by default */
+            animation: fadeIn 0.5s ease-out; /* Simple fade-in animation */
+        }
+
+        /* Show the target page */
+        .page-section:target {
+            display: block;
+        }
+
+        /* Default view: show dashboard if no hash or invalid hash */
+        body:not(:has(.page-section:target)) #dashboard-page {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .welcome-heading {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #1f2937; /* Darker gray */
+        }
+
+        /* Dashboard Specific: Quick Actions at top */
+        .dashboard-top-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .dashboard-top-actions .action-button {
+            background-color: #3b82f6; /* Blue */
+            color: #ffffff;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.75rem; /* Rounded corners */
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-grow: 1; /* Allow buttons to grow */
+            justify-content: center;
+        }
+
+        .dashboard-top-actions .action-button:hover {
+            background-color: #2563eb; /* Darker blue */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-top-actions .action-button .icon {
+            font-size: 1.2rem;
+        }
+
+
+        /* KPI Cards Section */
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* Rounded corners */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Soft shadow */
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px); /* Lift effect on hover */
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .kpi-card .label {
+            font-size: 1.1rem;
+            color: #6b7280; /* Medium gray */
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-card .value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .kpi-card .value.positive {
+            color: #10b981; /* Green for positive */
+        }
+
+        .kpi-card .value.negative {
+            color: #ef4444; /* Red for negative */
+        }
+
+        .kpi-card .icon {
+            font-size: 3rem;
+            opacity: 0.6;
+            align-self: flex-end; /* Align icon to bottom right */
+            margin-top: 0.5rem;
+        }
+
+        /* Account Cards Section */
+        .section-heading {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            color: #1f2937;
+        }
+
+        .account-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .account-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .account-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .account-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .account-card .name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #1f2937;
+        }
+
+        .account-card .type, .account-card .number {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .account-card .balance-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #4b5563;
+        }
+
+        .account-card .balance-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 0.25rem;
+        }
+
+        .account-card .balance-value.positive {
+            color: #10b981;
+        }
+
+        .account-card .balance-value.negative {
+            color: #ef4444;
+        }
+
+        .account-card button {
+            background-color: #3b82f6; /* Blue */
+            color: #ffffff;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 1rem;
+            width: 100%;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .account-card button:hover {
+            background-color: #2563eb; /* Darker blue */
+            transform: translateY(-1px);
+        }
+
+        /* Insights Section (Charts & Categories) */
+        .insights-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .insights-section {
+                grid-template-columns: 1fr 1fr; /* Two columns on larger screens */
+            }
+        }
+
+        .insight-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .insight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .chart-container {
+            height: 200px; /* Fixed height for chart area */
+            background-color: #f9fafb; /* Lighter gray */
+            border: 1px solid #e5e7eb; /* Dashed border */
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 1rem;
+            text-align: center;
+            margin-top: 1rem;
+            position: relative; /* For absolute positioning of SVG */
+            overflow: hidden; /* Hide overflowing SVG parts */
+        }
+
+        .chart-container svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible; /* Allow stroke to go slightly outside */
+        }
+
+        /* Line chart specific styles */
+        .chart-line {
+            fill: none;
+            stroke: #3b82f6; /* Blue line */
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .chart-area {
+            fill: rgba(59, 130, 246, 0.2); /* Light blue fill */
+        }
+
+        .chart-axis-line {
+            stroke: #d1d5db;
+            stroke-width: 1;
+        }
+
+        .chart-label {
+            font-size: 0.75rem;
+            fill: #6b7280;
+        }
+        .chart-point {
+            fill: #3b82f6;
+            stroke: #ffffff;
+            stroke-width: 2;
+            r: 4; /* radius of data points */
+        }
+
+        /* Bar chart specific styles */
+        .bar-chart-bar {
+            fill: #3b82f6; /* Default bar color */
+            transition: fill 0.3s ease;
+        }
+        .bar-chart-bar.positive {
+            fill: #10b981; /* Green for positive */
+        }
+        .bar-chart-bar.negative {
+            fill: #ef4444; /* Red for negative */
+        }
+        .bar-chart-bar.forecast {
+            fill: #9ca3af; /* Grey for forecast */
+        }
+        .bar-chart-label {
+            font-size: 0.7rem;
+            fill: #6b7280;
+        }
+
+        /* Donut/Pie chart specific styles */
+        .donut-chart-ring {
+            fill: none;
+            stroke-width: 20; /* Thickness of the donut ring */
+            transition: stroke 0.3s ease;
+        }
+        .donut-chart-text {
+            font-size: 2rem;
+            font-weight: 700;
+            fill: #1f2937;
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+        .donut-chart-subtext {
+            font-size: 0.8rem;
+            fill: #6b7280;
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+        .pie-slice {
+            transition: fill 0.3s ease;
+        }
+        .pie-label {
+            font-size: 0.7rem;
+            fill: #374151;
+            text-anchor: middle;
+        }
+
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb; /* Light border */
+        }
+
+        .category-item:last-child {
+            border-bottom: none; /* No border on last item */
+        }
+
+        .category-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .category-amount {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #4b5563;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e5e7eb;
+            border-radius: 0.5rem;
+            height: 0.75rem;
+            margin-top: 1rem;
+            overflow: hidden; /* Ensure inner bar is contained */
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #3b82f6; /* Blue fill */
+            border-radius: 0.5rem;
+        }
+
+        /* Quick Actions Section */
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-button {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            text-decoration: none; /* For anchor tags */
+            color: #374151;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            background-color: #eff6ff; /* Light blue hover */
+        }
+
+        .action-button .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-button .text {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Recent Transactions Table */
+        .transactions-table-container {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow-x: auto; /* For horizontal scrolling on small screens */
+            margin-bottom: 2rem;
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .transactions-table th {
+            background-color: #f9fafb;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+
+        .transactions-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .transactions-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .transactions-table .amount.credit {
+            color: #10b981; /* Green */
+            font-weight: 600;
+        }
+
+        .transactions-table .amount.debit {
+            color: #ef4444; /* Red */
+            font-weight: 600;
+        }
+
+        .transactions-table .arrow-icon {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+        .transactions-table .arrow-icon.up {
+            color: #10b981; /* Green */
+        }
+        .transactions-table .arrow-icon.down {
+            color: #ef4444; /* Red */
+        }
+
+
+        /* Profile Page Specific Styling */
+        .profile-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-header-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 1.5rem;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background-color: #bfdbfe; /* Light blue background for avatar */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #1e3a8a; /* Dark blue icon */
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .profile-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .metric-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-card .label {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .profile-tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            overflow-x: auto; /* Allow horizontal scrolling for tabs on small screens */
+        }
+
+        .profile-tabs a {
+            padding: 0.75rem 1.25rem;
+            text-decoration: none;
+            color: #6b7280;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap; /* Prevent tab text from wrapping */
+        }
+
+        .profile-tabs a:hover {
+            color: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .profile-tabs a.active {
+            color: #3b82f6;
+            border-color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .profile-details-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 640px) {
+            .profile-details-grid {
+                grid-template-columns: 1fr 1fr; /* Two columns on larger screens */
+            }
+        }
+
+        .detail-item {
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .detail-item .label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-item .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .profile-form-group {
+            margin-bottom: 1rem;
+        }
+
+        .profile-form-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: #4b5563;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+
+        .profile-form-group input[type="text"],
+        .profile-form-group input[type="email"],
+        .profile-form-group input[type="date"],
+        .profile-form-group input[type="password"] { /* Added password input style */
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            color: #374151;
+            box-sizing: border-box; /* Include padding in width */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .profile-form-group input[type="text"]:focus,
+        .profile-form-group input[type="email"]:focus,
+        .profile-form-group input[type="date"]:focus,
+        .profile-form-group input[type="password"]:focus { /* Added password input focus style */
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+
+        .form-info-text {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+
+        .profile-actions {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+        }
+
+        .profile-actions button {
+            background-color: #3b82f6;
+            color: #ffffff;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .profile-actions button:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .profile-actions button.secondary {
+            background-color: #6b7280;
+        }
+
+        .profile-actions button.secondary:hover {
+            background-color: #4b5563;
+        }
+
+
+        /* Footer Styling */
+        .footer {
+            background-color: rgba(31, 41, 55, 0.8); /* Slightly transparent darker gray */
+            color: #ffffff;
+            padding: 2rem 0;
+            text-align: center;
+            font-size: 0.9rem;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .footer .links a {
+            color: #9ca3af;
+            text-decoration: none;
+            margin: 0 0.75rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer .links a:hover {
+            color: #ffffff;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 767px) {
+            .header nav {
+                display: none; /* Hide nav on small screens */
+            }
+            .header .user-profile-nav {
+                margin-right: 1rem; /* Adjust margin */
+            }
+            .welcome-heading {
+                font-size: 1.8rem;
+                text-align: center;
+            }
+            .kpi-card .value {
+                font-size: 2rem;
+            }
+            .account-card .balance-value {
+                font-size: 1.5rem;
+            }
+            .transactions-table th,
+            .transactions-table td {
+                padding: 0.75rem 1rem;
+                font-size: 0.85rem;
+            }
+            .profile-header-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            .profile-avatar {
+                margin: 0 auto;
+            }
+            .dashboard-top-actions {
+                flex-direction: column;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">Secure Bank</div>
+            <nav>
+                <ul>
+                    <li><a href="#dashboard-page">Dashboard</a></li>
+                    <li><a href="#accounts-page">Accounts</a></li>
+                    <li><a href="#transactions-page">Transactions</a></li>
+                    <li><a href="#cards-page">Cards</a></li>
+                    <li><a href="#investment-page">Investments</a></li>
+                    <li><a href="#loan-page">Loans</a></li>
+                    <li><a href="#profile-page">Profile</a></li>
+                    <li><a href="#tour-page">Tour</a></li>
+                    <li><a href="#support">Support</a></li>
+                </ul>
+            </nav>
+            <div class="user-profile-nav">
+                <a href="#profile-page" class="user-name-link">
+                    <img src="https://placehold.co/40x40/cccccc/ffffff?text=SJ" alt="User Profile Photo" class="profile-photo">
+                    Shreya Jain
+                </a>
+                <div class="auth-buttons">
+                    <button>Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+        <main class="main-content-card">
+
+            <!-- Dashboard Page Content -->
+            <div id="dashboard-page" class="page-section">
+                <h2 class="welcome-heading">Welcome back, Shreya!</h2>
+                <p style="font-size: 1rem; color: #6b7280; margin-bottom: 1.5rem;">Here's your financial overview for today</p>
+
+                <!-- Dashboard Top Quick Actions (from image) -->
+                <div class="dashboard-top-actions">
+                    <a href="#" class="action-button">
+                        <span class="icon">💸</span>
+                        Transfer Money
+                    </a>
+                    <a href="#" class="action-button">
+                        <span class="icon">🧾</span>
+                        Pay Bills
+                    </a>
+                    <a href="#" class="action-button">
+                        <span class="icon">💳</span>
+                        Manage Cards
+                    </a>
+                </div>
+
+                <!-- Overall Financial Summary (KPIs) -->
+                <h3 class="section-heading">Account Overview</h3>
+                <div class="kpi-cards">
+                    <div class="kpi-card">
+                        <div class="label">Main Checking</div>
+                        <div class="value positive">$24,567.89</div>
+                        <div class="icon">🏦</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Savings Account</div>
+                        <div class="value positive">$45,123.45</div>
+                        <div class="icon">💰</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Credit Card</div>
+                        <div class="value negative">-$2,345.67</div>
+                        <div class="icon">💳</div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions Section -->
+                <h3 class="section-heading">Recent Transactions</h3>
+                <div class="transactions-table-container">
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2025-07-19</td>
+                                <td><span class="arrow-icon down">↓</span> Grocery Store <span style="font-size:0.85rem; color:#9ca3af;">• Food & Dining • Jul 15</span></td>
+                                <td class="amount debit">-$125.50</td>
+                                <td>Debit</td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-18</td>
+                                <td><span class="arrow-icon up">↑</span> Salary Deposit <span style="font-size:0.85rem; color:#9ca3af;">• Income • Jul 14</span></td>
+                                <td class="amount credit">+$3500.00</td>
+                                <td>Credit</td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-17</td>
+                                <td><span class="arrow-icon down">↓</span> Transfer to Savings <span style="font-size:0.85rem; color:#9ca3af;">• Transfer • Jul 13</span></td>
+                                <td class="amount debit">-$500.00</td>
+                                <td>Transfer</td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-16</td>
+                                <td><span class="arrow-icon down">↓</span> Gas Station <span style="font-size:0.85rem; color:#9ca3af;">• Transportation • Jul 12</span></td>
+                                <td class="amount debit">-$45.75</td>
+                                <td>Debit</td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-15</td>
+                                <td><span class="arrow-icon down">↓</span> Online Shopping <span style="font-size:0.85rem; color:#9ca3af;">• Shopping • Jul 11</span></td>
+                                <td class="amount debit">-$89.99</td>
+                                <td>Debit</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Financial Insights Section (Charts & Categories) -->
+                <h3 class="section-heading">Financial Insights</h3>
+                <div class="insights-section">
+                    <div class="insight-card">
+                        <h4 class="section-heading" style="margin-top: 0;">Investment Portfolio Performance</h4>
+                        <div class="chart-container">
+                            <svg viewBox="0 0 300 150" preserveAspectRatio="none">
+                                <!-- Grid Lines -->
+                                <line x1="10" y1="140" x2="290" y2="140" class="chart-axis-line" />
+                                <line x1="10" y1="100" x2="290" y2="100" class="chart-axis-line" stroke-dasharray="2,2" opacity="0.5"/>
+                                <line x1="10" y1="60" x2="290" y2="60" class="chart-axis-line" stroke-dasharray="2,2" opacity="0.5"/>
+                                <line x1="10" y1="20" x2="290" y2="20" class="chart-axis-line" stroke-dasharray="2,2" opacity="0.5"/>
+
+                                <!-- Data Line (Investment Performance) -->
+                                <!-- Data points are scaled to fit within the SVG viewBox (0-300 for X, 0-150 for Y) -->
+                                <!-- Y-axis is inverted for SVG: 0 is top, 150 is bottom. Higher values mean lower Y coordinate. -->
+                                <!-- Example data: [100, 110, 105, 120, 115, 130, 125, 140, 135, 150, 145, 160] -->
+                                <!-- Scaled for Y: (value / MaxValue) * ChartHeight -->
+                                <!-- Assuming MaxValue is around 160 for performance, ChartHeight is 130 (140-10) -->
+                                <polyline
+                                    class="chart-line"
+                                    stroke="#10b981" /* Green for positive performance */
+                                    points="
+                                        25,120 /* 100 */
+                                        50,110 /* 110 */
+                                        75,115 /* 105 */
+                                        100,100 /* 120 */
+                                        125,105 /* 115 */
+                                        150,90 /* 130 */
+                                        175,95 /* 125 */
+                                        200,80 /* 140 */
+                                        225,85 /* 135 */
+                                        250,70 /* 150 */
+                                        275,75 /* 145 */
+                                        290,60 /* 160 */
+                                    "
+                                />
+                                <!-- Area Fill below the line -->
+                                <path
+                                    fill="rgba(16, 185, 129, 0.2)" /* Light green fill */
+                                    d="
+                                        M25,120 L50,110 L75,115 L100,100 L125,105 L150,90 L175,95 L200,80 L225,85 L250,70 L275,75 L290,60
+                                        L290,140 L25,140 Z
+                                    "
+                                />
+                                <!-- Data Points -->
+                                <circle cx="25" cy="120" class="chart-point" fill="#10b981"/>
+                                <circle cx="50" cy="110" class="chart-point" fill="#10b981"/>
+                                <circle cx="75" cy="115" class="chart-point" fill="#10b981"/>
+                                <circle cx="100" cy="100" class="chart-point" fill="#10b981"/>
+                                <circle cx="125" cy="105" class="chart-point" fill="#10b981"/>
+                                <circle cx="150" cy="90" class="chart-point" fill="#10b981"/>
+                                <circle cx="175" cy="95" class="chart-point" fill="#10b981"/>
+                                <circle cx="200" cy="80" class="chart-point" fill="#10b981"/>
+                                <circle cx="225" cy="85" class="chart-point" fill="#10b981"/>
+                                <circle cx="250" cy="70" class="chart-point" fill="#10b981"/>
+                                <circle cx="275" cy="75" class="chart-point" fill="#10b981"/>
+                                <circle cx="290" cy="60" class="chart-point" fill="#10b981"/>
+
+                                <!-- X-axis labels -->
+                                <text x="25" y="148" class="chart-label" text-anchor="middle">Jan</text>
+                                <text x="75" y="148" class="chart-label" text-anchor="middle">Mar</text>
+                                <text x="125" y="148" class="chart-label" text-anchor="middle">May</text>
+                                <text x="175" y="148" class="chart-label" text-anchor="middle">Jul</text>
+                                <text x="225" y="148" class="chart-label" text-anchor="middle">Sep</text>
+                                <text x="275" y="148" class="chart-label" text-anchor="middle">Nov</text>
+
+                                <!-- Y-axis labels -->
+                                <text x="5" y="140" class="chart-label" text-anchor="end">$0</text>
+                                <text x="5" y="80" class="chart-label" text-anchor="end">$80</text>
+                                <text x="5" y="20" class="chart-label" text-anchor="end">$160</text>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <h4 class="section-heading" style="margin-top: 0;">Financial Health Score</h4>
+                        <div class="chart-container" style="position: relative; overflow: visible;">
+                            <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+                                <!-- Background circle for the donut chart -->
+                                <circle cx="50" cy="50" r="40" fill="transparent" stroke="#e5e7eb" stroke-width="10"></circle>
+                                <!-- Donut segment (e.g., 80% filled) -->
+                                <circle cx="50" cy="50" r="40" fill="transparent" stroke="#10b981" stroke-width="10"
+                                    stroke-dasharray="251.3" /* 2 * PI * 40 = 251.3 */
+                                    stroke-dashoffset="50.26" /* 251.3 * (1 - 0.8) = 50.26 (for 80%) */
+                                    transform="rotate(-90 50 50)" /* Start from top */
+                                ></circle>
+                                <!-- Text in the center -->
+                                <text x="50" y="45" class="donut-chart-text">785</text>
+                                <text x="50" y="60" class="donut-chart-subtext">Excellent</text>
+                            </svg>
+                        </div>
+                        <div style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #6b7280;">
+                            Your score is based on spending, savings, and credit history.
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <h4 class="section-heading" style="margin-top: 0;">Spending Distribution</h4>
+                        <div class="chart-container" style="position: relative; overflow: visible;">
+                            <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+                                <!-- Pie Chart Segments -->
+                                <!-- Colors: #3b82f6 (blue), #10b981 (green), #f59e0b (amber), #ef4444 (red), #6b7280 (gray) -->
+                                <!-- Data: Groceries 35%, Dining 20%, Utilities 15%, Transport 10%, Entertainment 10%, Shopping 10% -->
+                                <!-- Angles: 35%*360=126, 20%*360=72, 15%*360=54, 10%*360=36, 10%*360=36, 10%*360=36 -->
+                                <!-- Path d="M start_x,start_y A radius,radius 0 large_arc_flag,sweep_flag end_x,end_y L center_x,center_y Z" -->
+                                <!-- Center (50,50), Radius 40 -->
+
+                                <!-- Groceries (Blue) -->
+                                <path d="M 50,50 L 50,10 A 40,40 0 0,1 86.6,30 L 50,50 Z" fill="#3b82f6" class="pie-slice" />
+                                <!-- Dining (Green) -->
+                                <path d="M 86.6,30 L 80.9,69.1 A 40,40 0 0,1 50,90 L 50,50 Z" fill="#10b981" class="pie-slice" />
+                                <!-- Utilities (Amber) -->
+                                <path d="M 50,90 L 19.1,69.1 A 40,40 0 0,1 13.4,30 L 50,50 Z" fill="#f59e0b" class="pie-slice" />
+                                <!-- Transport (Red) -->
+                                <path d="M 13.4,30 L 19.1,69.1 A 40,40 0 0,1 50,10 L 50,50 Z" fill="#ef4444" class="pie-slice" />
+                                <!-- Entertainment (Gray) -->
+                                <path d="M 50,10 L 50,10 A 40,40 0 0,1 86.6,30 L 50,50 Z" fill="#6b7280" class="pie-slice" />
+                                <!-- Shopping (Light Blue) -->
+                                <path d="M 86.6,30 L 80.9,69.1 A 40,40 0 0,1 50,90 L 50,50 Z" fill="#bfdbfe" class="pie-slice" />
+                                
+                                <!-- Labels (simplified, for visual representation) -->
+                                <text x="75" y="25" class="pie-label">35%</text>
+                                <text x="85" y="50" class="pie-label">20%</text>
+                                <text x="75" y="75" class="pie-label">15%</text>
+                                <text x="25" y="75" class="pie-label">10%</text>
+                                <text x="15" y="50" class="pie-label">10%</text>
+                                <text x="25" y="25" class="pie-label">10%</text>
+                            </svg>
+                        </div>
+                        <div style="margin-top: 1rem; text-align: left;">
+                            <div style="display: flex; align-items: center; margin-bottom: 0.5rem;"><span style="display: inline-block; width: 12px; height: 12px; background-color: #3b82f6; border-radius: 2px; margin-right: 8px;"></span> Groceries (35%)</div>
+                            <div style="display: flex; align-items: center; margin-bottom: 0.5rem;"><span style="display: inline-block; width: 12px; height: 12px; background-color: #10b981; border-radius: 2px; margin-right: 8px;"></span> Dining Out (20%)</div>
+                            <div style="display: flex; align-items: center; margin-bottom: 0.5rem;"><span style="display: inline-block; width: 12px; height: 12px; background-color: #f59e0b; border-radius: 2px; margin-right: 8px;"></span> Utilities (15%)</div>
+                            <div style="display: flex; align-items: center; margin-bottom: 0.5rem;"><span style="display: inline-block; width: 12px; height: 12px; background-color: #ef4444; border-radius: 2px; margin-right: 8px;"></span> Transport (10%)</div>
+                            <div style="display: flex; align-items: center; margin-bottom: 0.5rem;"><span style="display: inline-block; width: 12px; height: 12px; background-color: #6b7280; border-radius: 2px; margin-right: 8px;"></span> Entertainment (10%)</div>
+                            <div style="display: flex; align-items: center;"><span style="display: inline-block; width: 12px; height: 12px; background-color: #bfdbfe; border-radius: 2px; margin-right: 8px;"></span> Shopping (10%)</div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <h4 class="section-heading" style="margin-top: 0;">Cash Flow Analysis</h4>
+                        <div class="chart-container">
+                            <svg viewBox="0 0 300 150" preserveAspectRatio="none">
+                                <!-- Grid Lines -->
+                                <line x1="10" y1="140" x2="290" y2="140" class="chart-axis-line" />
+                                <line x1="10" y1="100" x2="290" y2="100" class="chart-axis-line" stroke-dasharray="2,2" opacity="0.5"/>
+                                <line x1="10" y1="60" x2="290" y2="60" class="chart-axis-line" stroke-dasharray="2,2" opacity="0.5"/>
+                                <line x1="10" y1="20" x2="290" y2="20" class="chart-axis-line" stroke-dasharray="2,2" opacity="0.5"/>
+
+                                <!-- Bar Chart Bars -->
+                                <!-- Data: Income [100, 120, 90, 150, 110, 130], Expenses [80, 70, 100, 90, 120, 110] -->
+                                <!-- Bar width: 20px, gap: 5px between bars, 10px between months -->
+                                <!-- X-positions: 30, 60, 90, 120, 150, 180, 210, 240, 270 -->
+                                <!-- Y-positions: 140 - (value / MaxValue) * ChartHeight -->
+                                <!-- MaxValue: 150. ChartHeight: 120 (140-20) -->
+
+                                <!-- Income Bars (Green) -->
+                                <rect x="30" y="60" width="20" height="80" class="bar-chart-bar positive" /> <!-- Jan Income (100) -->
+                                <rect x="70" y="40" width="20" height="100" class="bar-chart-bar positive" /> <!-- Feb Income (120) -->
+                                <rect x="110" y="70" width="20" height="70" class="bar-chart-bar positive" /> <!-- Mar Income (90) -->
+                                <rect x="150" y="20" width="20" height="120" class="bar-chart-bar positive" /> <!-- Apr Income (150) -->
+                                <rect x="190" y="50" width="20" height="90" class="bar-chart-bar positive" /> <!-- May Income (110) -->
+                                <rect x="230" y="30" width="20" height="110" class="bar-chart-bar positive" /> <!-- Jun Income (130) -->
+
+                                <!-- Expense Bars (Red) -->
+                                <rect x="50" y="80" width="20" height="60" class="bar-chart-bar negative" /> <!-- Jan Expense (80) -->
+                                <rect x="90" y="90" width="20" height="50" class="bar-chart-bar negative" /> <!-- Feb Expense (70) -->
+                                <rect x="130" y="60" width="20" height="80" class="bar-chart-bar negative" /> <!-- Mar Expense (100) -->
+                                <rect x="170" y="70" width="20" height="70" class="bar-chart-bar negative" /> <!-- Apr Expense (90) -->
+                                <rect x="210" y="40" width="20" height="100" class="bar-chart-bar negative" /> <!-- May Expense (120) -->
+                                <rect x="250" y="50" width="20" height="90" class="bar-chart-bar negative" /> <!-- Jun Expense (110) -->
+
+                                <!-- X-axis labels -->
+                                <text x="40" y="148" class="bar-chart-label" text-anchor="middle">Jan</text>
+                                <text x="80" y="148" class="bar-chart-label" text-anchor="middle">Feb</text>
+                                <text x="120" y="148" class="bar-chart-label" text-anchor="middle">Mar</text>
+                                <text x="160" y="148" class="bar-chart-label" text-anchor="middle">Apr</text>
+                                <text x="200" y="148" class="bar-chart-label" text-anchor="middle">May</text>
+                                <text x="240" y="148" class="bar-chart-label" text-anchor="middle">Jun</text>
+
+                                <!-- Y-axis labels -->
+                                <text x="5" y="140" class="bar-chart-label" text-anchor="end">0</text>
+                                <text x="5" y="80" class="bar-chart-label" text-anchor="end">500</text>
+                                <text x="5" y="20" class="bar-chart-label" text-anchor="end">1000</text>
+                            </svg>
+                        </div>
+                        <div style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #6b7280;">
+                            <span style="display: inline-block; width: 12px; height: 12px; background-color: #10b981; border-radius: 2px; margin-right: 8px;"></span> Income
+                            <span style="display: inline-block; width: 12px; height: 12px; background-color: #ef4444; border-radius: 2px; margin-left: 1rem; margin-right: 8px;"></span> Expenses
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <h4 class="section-heading" style="margin-top: 0;">Actual vs. Forecast Expenses</h4>
+                        <div class="chart-container">
+                            <svg viewBox="0 0 300 150" preserveAspectRatio="none">
+                                <!-- Grid Lines -->
+                                <line x1="10" y1="140" x2="290" y2="140" class="chart-axis-line" />
+                                <line x1="10" y1="100" x2="290" y2="100" class="chart-axis-line" stroke-dasharray="2,2" opacity="0.5"/>
+                                <line x1="10" y1="60" x2="290" y2="60" class="chart-axis-line" stroke-dasharray="2,2" opacity="0.5"/>
+                                <line x1="10" y1="20" x2="290" y2="20" class="chart-axis-line" stroke-dasharray="2,2" opacity="0.5"/>
+
+                                <!-- Bar Chart Bars -->
+                                <!-- Data: Actual [120, 100, 130, 110, 140, 125], Forecast [110, 115, 105, 120, 115, 130] -->
+                                <!-- Bar width: 15px, gap: 5px between actual/forecast, 20px between months -->
+                                <!-- MaxValue: 140. ChartHeight: 120 (140-20) -->
+
+                                <!-- Actual Bars (Blue) -->
+                                <rect x="30" y="50" width="15" height="90" class="bar-chart-bar" /> <!-- Jan Actual (120) -->
+                                <rect x="70" y="70" width="15" height="70" class="bar-chart-bar" /> <!-- Feb Actual (100) -->
+                                <rect x="110" y="40" width="15" height="100" class="bar-chart-bar" /> <!-- Mar Actual (130) -->
+                                <rect x="150" y="60" width="15" height="80" class="bar-chart-bar" /> <!-- Apr Actual (110) -->
+                                <rect x="190" y="30" width="15" height="110" class="bar-chart-bar" /> <!-- May Actual (140) -->
+                                <rect x="230" y="45" width="15" height="95" class="bar-chart-bar" /> <!-- Jun Actual (125) -->
+
+                                <!-- Forecast Bars (Grey) -->
+                                <rect x="45" y="60" width="15" height="80" class="bar-chart-bar forecast" /> <!-- Jan Forecast (110) -->
+                                <rect x="85" y="55" width="15" height="85" class="bar-chart-bar forecast" /> <!-- Feb Forecast (115) -->
+                                <rect x="125" y="65" width="15" height="75" class="bar-chart-bar forecast" /> <!-- Mar Forecast (105) -->
+                                <rect x="165" y="50" width="15" height="90" class="bar-chart-bar forecast" /> <!-- Apr Forecast (120) -->
+                                <rect x="205" y="55" width="15" height="85" class="bar-chart-bar forecast" /> <!-- May Forecast (115) -->
+                                <rect x="245" y="40" width="15" height="100" class="bar-chart-bar forecast" /> <!-- Jun Forecast (130) -->
+
+
+                                <!-- X-axis labels -->
+                                <text x="45" y="148" class="bar-chart-label" text-anchor="middle">Jan</text>
+                                <text x="85" y="148" class="bar-chart-label" text-anchor="middle">Feb</text>
+                                <text x="125" y="148" class="bar-chart-label" text-anchor="middle">Mar</text>
+                                <text x="165" y="148" class="bar-chart-label" text-anchor="middle">Apr</text>
+                                <text x="205" y="148" class="bar-chart-label" text-anchor="middle">May</text>
+                                <text x="245" y="148" class="bar-chart-label" text-anchor="middle">Jun</text>
+
+                                <!-- Y-axis labels -->
+                                <text x="5" y="140" class="bar-chart-label" text-anchor="end">0</text>
+                                <text x="5" y="80" class="bar-chart-label" text-anchor="end">70</text>
+                                <text x="5" y="20" class="bar-chart-label" text-anchor="end">140</text>
+                            </svg>
+                        </div>
+                        <div style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #6b7280;">
+                            <span style="display: inline-block; width: 12px; height: 12px; background-color: #3b82f6; border-radius: 2px; margin-right: 8px;"></span> Actual
+                            <span style="display: inline-block; width: 12px; height: 12px; background-color: #9ca3af; border-radius: 2px; margin-left: 1rem; margin-right: 8px;"></span> Forecast
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <h4 class="section-heading" style="margin-top: 0;">Spending by Category (This Month)</h4>
+                        <div class="category-list">
+                            <div class="category-item">
+                                <span class="category-name">Groceries</span>
+                                <span class="category-amount">$350.00 (35%)</span>
+                            </div>
+                            <div class="category-item">
+                                <span class="category-name">Dining Out</span>
+                                <span class="category-amount">$200.00 (20%)</span>
+                            </div>
+                            <div class="category-item">
+                                <span class="category-name">Utilities</span>
+                                <span class="category-amount">$150.00 (15%)</span>
+                            </div>
+                            <div class="category-item">
+                                <span class="category-name">Transport</span>
+                                <span class="category-amount">$100.00 (10%)</span>
+                            </div>
+                            <div class="category-item">
+                                <span class="category-name">Entertainment</span>
+                                <span class="category-amount">$100.00 (10%)</span>
+                            </div>
+                            <div class="category-item">
+                                <span class="category-name">Shopping</span>
+                                <span class="category-amount">$75.50 (7.5%)</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: 75%;"></div>
+                        </div>
+                        <p style="font-size: 0.9rem; color: #6b7280; text-align: right; margin-top: 0.5rem;">Budget Progress: 75% Used</p>
+                    </div>
+                </div>
+            </div> <!-- End Dashboard Page Content -->
+
+            <!-- Profile Page Content -->
+            <div id="profile-page" class="page-section">
+                <h2 class="welcome-heading">Your Profile</h2>
+
+                <div class="profile-card">
+                    <div class="profile-header-section">
+                        <div class="profile-avatar">👤</div>
+                        <div>
+                            <h3 class="profile-name">Shreya Jain</h3>
+                            <p style="color: #6b7280;">shreya.jain@securebank.com</p>
+                            <p style="color: #6b7280;">Member since January 2020</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-metrics-grid">
+                        <div class="metric-card">
+                            <div class="value">4</div>
+                            <div class="label">ACCOUNTS</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="value">785</div>
+                            <div class="label">CREDIT SCORE</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="value">A+</div>
+                            <div class="label">STATUS</div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Tabs - Simplified for HTML/CSS. Only Personal Info is shown -->
+                    <div class="profile-tabs">
+                        <a href="#profile-page" class="active">Personal Info</a>
+                        <a href="#">Security</a>
+                        <a href="#">Preferences</a>
+                        <a href="#">Documents</a>
+                    </div>
+
+                    <h3 class="section-heading" style="margin-top: 0;">Personal Information</h3>
+                    <p style="font-size: 0.9rem; color: #6b7280; margin-bottom: 1.5rem;">Update your personal details and contact information</p>
+
+                    <div class="profile-details-grid">
+                        <div class="profile-form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" value="Shreya">
+                        </div>
+                        <div class="profile-form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" value="Jain">
+                        </div>
+                        <div class="profile-form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" value="shreya.jain@securebank.com">
+                        </div>
+                        <div class="profile-form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="text" id="phone" value="+1 (555) 123-4567">
+                        </div>
+                        <div class="profile-form-group" style="grid-column: 1 / -1;"> {/* Span full width */}
+                            <label for="address">Address</label>
+                            <input type="text" id="address" value="123 Main St, Anytown, USA 12345">
+                        </div>
+                        <div class="profile-form-group">
+                            <label for="dob">Date of Birth</label>
+                            <input type="date" id="dob" value="1990-05-15">
+                        </div>
+                        <div class="profile-form-group">
+                            <label for="ssn">Social Security Number</label>
+                            <input type="text" id="ssn" value="***-**-1234">
+                            <p class="form-info-text">For security reasons, SSN cannot be changed online</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-actions" style="justify-content: flex-end;">
+                        <button class="secondary">Reset</button>
+                        <button>Save Changes</button>
+                    </div>
+                </div>
+            </div> <!-- End Profile Page Content -->
+
+            <!-- Cards Page Content -->
+            <div id="cards-page" class="page-section">
+                <h2 class="welcome-heading">Your Cards</h2>
+
+                <div class="kpi-cards">
+                    <div class="kpi-card">
+                        <div class="label">Total Cards</div>
+                        <div class="value">3</div>
+                        <div class="icon">💳</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Credit Limit Used</div>
+                        <div class="value negative">-$750.20</div>
+                        <div class="icon">💸</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Next Payment Due</div>
+                        <div class="value">Aug 15</div>
+                        <div class="icon">📅</div>
+                    </div>
+                </div>
+
+                <h3 class="section-heading">Your Active Cards</h3>
+                <div class="account-cards"> <!-- Re-using account-cards grid for card items -->
+                    <div class="card-item">
+                        <div class="card-type">Secure Bank Visa Platinum</div>
+                        <div class="card-number">**** **** **** 9012</div>
+                        <div class="card-holder">Shreya Jain</div>
+                        <div class="card-expiry">Expires: 12/28</div>
+                        <div class="card-balance negative">Balance: -$750.20</div>
+                        <div class="card-actions">
+                            <button>View Statements</button>
+                            <button class="secondary">Freeze Card</button>
+                        </div>
+                    </div>
+                    <div class="card-item">
+                        <div class="card-type">Secure Bank Debit Card</div>
+                        <div class="card-number">**** **** **** 1234</div>
+                        <div class="card-holder">Shreya Jain</div>
+                        <div class="card-expiry">Expires: 08/30</div>
+                        <div class="card-balance positive">Balance: $5,230.45</div>
+                        <div class="card-actions">
+                            <button>Manage PIN</button>
+                            <button class="secondary">Report Lost</button>
+                        </div>
+                    </div>
+                    <div class="card-item">
+                        <div class="card-type">Secure Bank Rewards Mastercard</div>
+                        <div class="card-number">**** **** **** 5678</div>
+                        <div class="card-holder">Shreya Jain</div>
+                        <div class="card-expiry">Expires: 06/27</div>
+                        <div class="card-balance negative">-$120.00</div>
+                        <div class="card-actions">
+                            <button>Redeem Rewards</button>
+                            <button class="secondary">Set Alerts</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="section-heading">Apply for a New Card</h3>
+                <div class="profile-card"> <!-- Re-using profile-card for a general content block -->
+                    <p style="margin-bottom: 1rem; color: #4b5563;">Explore our range of credit and debit cards designed to fit your lifestyle and financial goals.</p>
+                    <button>Explore Cards</button>
+                </div>
+            </div> <!-- End Cards Page Content -->
+
+            <!-- Investment Page Content -->
+            <div id="investment-page" class="page-section">
+                <h2 class="welcome-heading">Your Investments</h2>
+
+                <div class="kpi-cards">
+                    <div class="kpi-card">
+                        <div class="label">Total Portfolio Value</div>
+                        <div class="value positive">$35,890.75</div>
+                        <div class="icon">📈</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Today's Gain</div>
+                        <div class="value positive">+$250.75</div>
+                        <div class="icon">⬆️</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Invested Value</div>
+                        <div class="value">$35,640.00</div>
+                        <div class="icon">💰</div>
+                    </div>
+                </div>
+
+                <h3 class="section-heading">Investment Portfolio Performance</h3>
+                <div class="insight-card">
+                    <div class="chart-container">
+                        <svg viewBox="0 0 300 150" preserveAspectRatio="none">
+                            <!-- Grid Lines -->
+                            <line x1="10" y1="140" x2="290" y2="140" class="chart-axis-line" />
+                            <line x1="10" y1="100" x2="290" y2="100" class="chart-axis-line" stroke-dasharray="2,2" opacity="0.5"/>
+                            <line x1="10" y1="60" x2="290" y2="60" class="chart-axis-line" stroke-dasharray="2,2" opacity="0.5"/>
+                            <line x1="10" y1="20" x2="290" y2="20" class="chart-axis-line" stroke-dasharray="2,2" opacity="0.5"/>
+
+                            <!-- Data Line (Investment Performance) -->
+                            <polyline
+                                class="chart-line"
+                                stroke="#10b981" /* Green for positive performance */
+                                points="
+                                    25,120 /* 100 */
+                                    50,110 /* 110 */
+                                    75,115 /* 105 */
+                                    100,100 /* 120 */
+                                    125,105 /* 115 */
+                                    150,90 /* 130 */
+                                    175,95 /* 125 */
+                                    200,80 /* 140 */
+                                    225,85 /* 135 */
+                                    250,70 /* 150 */
+                                    275,75 /* 145 */
+                                    290,60 /* 160 */
+                                "
+                            />
+                            <!-- Area Fill below the line -->
+                            <path
+                                fill="rgba(16, 185, 129, 0.2)" /* Light green fill */
+                                d="
+                                    M25,120 L50,110 L75,115 L100,100 L125,105 L150,90 L175,95 L200,80 L225,85 L250,70 L275,75 L290,60
+                                    L290,140 L25,140 Z
+                                "
+                            />
+                            <!-- Data Points -->
+                            <circle cx="25" cy="120" class="chart-point" fill="#10b981"/>
+                            <circle cx="50" cy="110" class="chart-point" fill="#10b981"/>
+                            <circle cx="75" cy="115" class="chart-point" fill="#10b981"/>
+                            <circle cx="100" cy="100" class="chart-point" fill="#10b981"/>
+                            <circle cx="125" cy="105" class="chart-point" fill="#10b981"/>
+                            <circle cx="150" cy="90" class="chart-point" fill="#10b981"/>
+                            <circle cx="175" cy="95" class="chart-point" fill="#10b981"/>
+                            <circle cx="200" cy="80" class="chart-point" fill="#10b981"/>
+                            <circle cx="225" cy="85" class="chart-point" fill="#10b981"/>
+                            <circle cx="250" cy="70" class="chart-point" fill="#10b981"/>
+                            <circle cx="275" cy="75" class="chart-point" fill="#10b981"/>
+                            <circle cx="290" cy="60" class="chart-point" fill="#10b981"/>
+
+                            <!-- X-axis labels -->
+                            <text x="25" y="148" class="chart-label" text-anchor="middle">Jan</text>
+                            <text x="75" y="148" class="chart-label" text-anchor="middle">Mar</text>
+                            <text x="125" y="148" class="chart-label" text-anchor="middle">May</text>
+                            <text x="175" y="148" class="chart-label" text-anchor="middle">Jul</text>
+                            <text x="225" y="148" class="chart-label" text-anchor="middle">Sep</text>
+                            <text x="275" y="148" class="chart-label" text-anchor="middle">Nov</text>
+
+                            <!-- Y-axis labels -->
+                            <text x="5" y="140" class="chart-label" text-anchor="end">$0</text>
+                            <text x="5" y="80" class="chart-label" text-anchor="end">$80</text>
+                            <text x="5" y="20" class="chart-label" text-anchor="end">$160</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <h3 class="section-heading">Current Holdings</h3>
+                <div class="investment-holdings-table-container">
+                    <table class="investment-holdings-table">
+                        <thead>
+                            <tr>
+                                <th>Asset</th>
+                                <th>Symbol</th>
+                                <th>Quantity</th>
+                                <th>Avg. Cost</th>
+                                <th>Current Price</th>
+                                <th>Today's Change</th>
+                                <th>Total Return</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Apple Inc.</td>
+                                <td>AAPL</td>
+                                <td>10</td>
+                                <td>$150.00</td>
+                                <td>$175.50</td>
+                                <td class="change positive">+$2.50 (+1.4%)</td>
+                                <td class="change positive">+$255.00</td>
+                            </tr>
+                            <tr>
+                                <td>Microsoft Corp.</td>
+                            <td>MSFT</td>
+                            <td>5</td>
+                            <td>$200.00</td>
+                            <td>$198.20</td>
+                            <td class="change negative">-$1.80 (-0.9%)</td>
+                            <td class="change negative">-$9.00</td>
+                        </tr>
+                        <tr>
+                            <td>S&P 500 ETF</td>
+                            <td>SPY</td>
+                            <td>20</td>
+                            <td>$400.00</td>
+                            <td>$405.10</td>
+                            <td class="change positive">+$0.50 (+0.1%)</td>
+                            <td class="change positive">+$102.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="section-heading">Top Performing Stocks</h3>
+            <div class="kpi-cards"> <!-- Re-using kpi-cards grid for stock cards -->
+                <div class="stock-card">
+                    <div class="symbol">GOOG</div>
+                    <div class="name">Alphabet Inc.</div>
+                    <div class="price">$155.20</div>
+                    <div class="change positive">+$3.10 (+2.04%)</div>
+                </div>
+                <div class="stock-card">
+                    <div class="symbol">AMZN</div>
+                    <div class="name">Amazon.com Inc.</div>
+                    <div class="price">$180.50</div>
+                    <div class="change positive">+$2.70 (+1.52%)</div>
+                </div>
+                <div class="stock-card">
+                    <div class="symbol">NVDA</div>
+                    <div class="name">NVIDIA Corp.</div>
+                    <div class="price">$1200.00</div>
+                    <div class="change positive">+$15.00 (+1.27%)</div>
+                </div>
+            </div>
+
+            <h3 class="section-heading">Your Mutual Funds</h3>
+            <div class="insight-card" style="display: flex; flex-direction: column; align-items: center;">
+                <p style="font-size: 1.2rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem;">Total Mutual Fund Value: <span style="color: #10b981;">$15,000.00</span></p>
+                <div class="pie-chart-container">
+                    <svg viewBox="0 0 100 100">
+                        <!-- Mutual Fund Allocation: Equity 60%, Debt 30%, Hybrid 10% -->
+                        <!-- Colors: #3b82f6 (Equity), #10b981 (Debt), #f59e0b (Hybrid) -->
+                        <!-- Angles: 60%*360=216, 30%*360=108, 10%*360=36 -->
+
+                        <!-- Equity (Blue) -->
+                        <path d="M 50,50 L 50,0 A 50,50 0 0,1 19.02,90.45 L 50,50 Z" fill="#3b82f6" class="pie-slice" />
+                        <!-- Debt (Green) -->
+                        <path d="M 19.02,90.45 L 50,50 A 50,50 0 0,1 99.02,30.95 L 50,50 Z" fill="#10b981" class="pie-slice" />
+                        <!-- Hybrid (Amber) -->
+                        <path d="M 99.02,30.95 L 50,50 A 50,50 0 0,1 50,0 L 50,50 Z" fill="#f59e0b" class="pie-slice" />
+                    </svg>
+                </div>
+                <div class="pie-chart-legend">
+                    <div class="pie-chart-legend-item"><span class="pie-chart-legend-color" style="background-color: #3b82f6;"></span> Equity (60%)</div>
+                    <div class="pie-chart-legend-item"><span class="pie-chart-legend-color" style="background-color: #10b981;"></span> Debt (30%)</div>
+                    <div class="pie-chart-legend-item"><span class="pie-chart-legend-color" style="background-color: #f59e0b;"></span> Hybrid (10%)</div>
+                </div>
+            </div>
+
+            <h3 class="section-heading">Your SIPs (Systematic Investment Plans)</h3>
+            <div class="insight-card" style="display: flex; flex-direction: column; align-items: center;">
+                <p style="font-size: 1.2rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem;">Total Monthly SIP Contribution: <span style="color: #3b82f6;">$1,200.00</span></p>
+                <div class="pie-chart-container">
+                    <svg viewBox="0 0 100 100">
+                        <!-- SIP Allocation: Equity Fund 50%, Debt Fund 30%, Gold Fund 20% -->
+                        <!-- Colors: #ef4444 (Equity), #6b7280 (Debt), #bfdbfe (Gold) -->
+                        <!-- Angles: 50%*360=180, 30%*360=108, 20%*360=72 -->
+
+                        <!-- Equity Fund (Red) -->
+                        <path d="M 50,50 L 50,0 A 50,50 0 0,1 50,100 L 50,50 Z" fill="#ef4444" class="pie-slice" />
+                        <!-- Debt Fund (Gray) -->
+                        <path d="M 50,100 L 50,50 A 50,50 0 0,1 19.02,90.45 L 50,50 Z" fill="#6b7280" class="pie-slice" />
+                        <!-- Gold Fund (Light Blue) -->
+                        <path d="M 19.02,90.45 L 50,50 A 50,50 0 0,1 50,0 L 50,50 Z" fill="#bfdbfe" class="pie-slice" />
+                    </svg>
+                </div>
+                <div class="pie-chart-legend">
+                    <div class="pie-chart-legend-item"><span class="pie-chart-legend-color" style="background-color: #ef4444;"></span> Equity Fund (50%)</div>
+                    <div class="pie-chart-legend-item"><span class="pie-chart-legend-color" style="background-color: #6b7280;"></span> Debt Fund (30%)</div>
+                    <div class="pie-chart-legend-item"><span class="pie-chart-legend-color" style="background-color: #bfdbfe;"></span> Gold Fund (20%)</div>
+                </div>
+            </div>
+
+            <h3 class="section-heading">Investment Actions</h3>
+            <div class="quick-actions-grid">
+                <a href="#" class="action-button">
+                    <span class="icon">📈</span>
+                    <span class="text">Buy/Sell Stocks</span>
+                </a>
+                <a href="#" class="action-button">
+                    <span class="icon">📊</span>
+                    <span class="text">View Research</span>
+                </a>
+                <a href="#" class="action-button">
+                    <span class="icon">💰</span>
+                    <span class="text">Add Funds</span>
+                </a>
+                <a href="#" class="action-button">
+                    <span class="icon">💬</span>
+                    <span class="text">Talk to Advisor</span>
+                </a>
+            </div>
+        </div> <!-- End Investment Page Content -->
+
+        <!-- Loan Page Content -->
+        <div id="loan-page" class="page-section">
+            <h2 class="welcome-heading">Your Loans</h2>
+
+            <div class="kpi-cards">
+                <div class="kpi-card">
+                    <div class="label">Active Loans</div>
+                    <div class="value">2</div>
+                    <div class="icon">📄</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">Total Debt</div>
+                    <div class="value negative">-$25,500.00</div>
+                    <div class="icon">💸</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">Next Payment</div>
+                    <div class="value">Aug 01</div>
+                    <div class="icon">🗓️</div>
+                </div>
+            </div>
+
+            <h3 class="section-heading">Your Active Loans</h3>
+            <div class="account-cards"> <!-- Re-using account-cards grid for loan items -->
+                <div class="loan-card">
+                    <div class="loan-type">Personal Loan</div>
+                    <div class="loan-details">
+                        <div class="loan-detail-item">
+                            <div class="label">Amount</div>
+                            <div class="value">$12,000.00</div>
+                        </div>
+                        <div class="loan-detail-item">
+                            <div class="label">Remaining</div>
+                            <div class="value">$10,500.00</div>
+                        </div>
+                        <div class="loan-detail-item">
+                            <div class="label">Interest Rate</div>
+                            <div class="value">7.5% APR</div>
+                        </div>
+                        <div class="loan-detail-item">
+                            <div class="label">Monthly Payment</div>
+                            <div class="value">$350.00</div>
+                        </div>
+                    </div>
+                    <p class="payment-due">Next Payment Due: July 30, 2025</p>
+                    <div class="loan-actions">
+                        <button>Make a Payment</button>
+                        <button class="secondary">View Details</button>
+                    </div>
+                </div>
+                <div class="loan-card">
+                    <div class="loan-type">Auto Loan</div>
+                    <div class="loan-details">
+                        <div class="loan-detail-item">
+                            <div class="label">Amount</div>
+                            <div class="value">$15,000.00</div>
+                        </div>
+                        <div class="loan-detail-item">
+                            <div class="label">Remaining</div>
+                            <div class="value">$13,200.00</div>
+                        </div>
+                        <div class="loan-detail-item">
+                            <div class="label">Interest Rate</div>
+                            <div class="value">4.9% APR</div>
+                        </div>
+                        <div class="loan-detail-item">
+                            <div class="label">Monthly Payment</div>
+                            <div class="value">$280.00</div>
+                            </div>
+                        </div>
+                        <p class="payment-due">Next Payment Due: August 5, 2025</p>
+                        <div class="loan-actions">
+                            <button>Make a Payment</button>
+                            <button class="secondary">View Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="section-heading">Apply for a New Loan</h3>
+                <div class="profile-card">
+                    <p style="margin-bottom: 1rem; color: #4b5563;">Need funds for a new car, home renovation, or personal needs? Explore our flexible loan options.</p>
+                    <button>Explore Loan Options</button>
+                </div>
+            </div> <!-- End Loan Page Content -->
+
+            <!-- Accounts Page Content (New) -->
+            <div id="accounts-page" class="page-section">
+                <h2 class="welcome-heading">Your Accounts</h2>
+
+                <div class="kpi-cards">
+                    <div class="kpi-card">
+                        <div class="label">Total Accounts</div>
+                        <div class="value">4</div>
+                        <div class="icon">🏦</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Total Balance</div>
+                        <div class="value positive">$25,300.25</div>
+                        <div class="icon">💰</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Available for Transfer</div>
+                        <div class="value positive">$5,230.45</div>
+                        <div class="icon">💸</div>
+                    </div>
+                </div>
+
+                <h3 class="section-heading">All Your Accounts</h3>
+                <div class="account-cards">
+                    <div class="account-card">
+                        <div class="icon">🏦</div>
+                        <div class="name">Checking Account</div>
+                        <div class="type">Checking</div>
+                        <div class="number">**** 1234</div>
+                        <div class="balance-label">Balance:</div>
+                        <div class="balance-value positive">$5,230.45</div>
+                        <button>View Details</button>
+                    </div>
+                    <div class="account-card">
+                        <div class="icon">📈</div>
+                        <div class="name">Savings Account</div>
+                        <div class="type">Savings</div>
+                        <div class="number">**** 5678</div>
+                        <div class="balance-label">Balance:</div>
+                        <div class="balance-value positive">$18,750.00</div>
+                        <button>View Details</button>
+                    </div>
+                    <div class="account-card">
+                        <div class="icon">💳</div>
+                        <div class="name">Credit Card (Visa)</div>
+                        <div class="type">Credit Card</div>
+                        <div class="number">**** 9012</div>
+                        <div class="balance-label">Balance:</div>
+                        <div class="balance-value negative">-$750.20</div>
+                        <button>View Details</button>
+                    </div>
+                    <div class="account-card">
+                        <div class="icon">💸</div>
+                        <div class="name">Personal Loan</div>
+                        <div class="type">Loan</div>
+                        <div class="number">**** 3456</div>
+                        <div class="balance-label">Balance:</div>
+                        <div class="balance-value negative">-$12,000.00</div>
+                        <button>View Details</button>
+                    </div>
+                </div>
+
+                <h3 class="section-heading">Open a New Account</h3>
+                <div class="profile-card">
+                    <p style="margin-bottom: 1rem; color: #4b5563;">Expand your financial possibilities with new checking, savings, or investment accounts.</p>
+                    <button>Explore Account Options</m>
+                </div>
+            </div> <!-- End Accounts Page Content -->
+
+            <!-- Transactions Page Content (New) -->
+            <div id="transactions-page" class="page-section">
+                <h2 class="welcome-heading">Your Transactions</h2>
+
+                <div class="kpi-cards">
+                    <div class="kpi-card">
+                        <div class="label">Total Transactions (Last 30 Days)</div>
+                        <div class="value">50</div>
+                        <div class="icon">🧾</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Total Debits (Last 30 Days)</div>
+                        <div class="value negative">-$3,500.00</div>
+                        <div class="icon">⬇️</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Total Credits (Last 30 Days)</div>
+                        <div class="value positive">+$4,200.00</div>
+                        <div class="icon">⬆️</div>
+                    </div>
+                </div>
+
+                <h3 class="section-heading">Filter Transactions</h3>
+                <div class="profile-card" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                    <div class="profile-form-group" style="flex-grow: 1; min-width: 180px;">
+                        <label for="transactionType">Type</label>
+                        <select id="transactionType" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 1rem; color: #374151;">
+                            <option>All</option>
+                            <option>Debit</option>
+                            <option>Credit</option>
+                            <option>Transfer</option>
+                        </select>
+                    </div>
+                    <div class="profile-form-group" style="flex-grow: 1; min-width: 180px;">
+                        <label for="transactionCategory">Category</label>
+                        <select id="transactionCategory" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 1rem; color: #374151;">
+                            <option>All</option>
+                            <option>Food & Dining</option>
+                            <option>Shopping</option>
+                            <option>Utilities</option>
+                            <option>Transportation</option>
+                        </select>
+                    </div>
+                    <div class="profile-form-group" style="flex-grow: 1; min-width: 180px;">
+                        <label for="transactionDateRange">Date Range</label>
+                        <select id="transactionDateRange" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 1rem; color: #374151;">
+                            <option>Last 30 Days</option>
+                            <option>Last 90 Days</option>
+                            <option>This Year</option>
+                            <option>Custom</option>
+                        </select>
+                    </div>
+                    <button style="margin-top: 1rem; padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border-radius: 0.5rem; border: none; cursor: pointer;">Apply Filters</button>
+                </div>
+
+
+                <h3 class="section-heading">All Transactions</h3>
+                <div class="transactions-table-container">
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2025-07-19</td>
+                                <td><span class="arrow-icon down">↓</span> Grocery Store <span style="font-size:0.85rem; color:#9ca3af;">• Food & Dining</span></td>
+                                <td class="amount debit">-$75.30</td>
+                                <td>Debit</td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-18</td>
+                                <td><span class="arrow-icon up">↑</span> Salary Deposit <span style="font-size:0.85rem; color:#9ca3af;">• Income</span></td>
+                                <td class="amount credit">+$2500.00</td>
+                                <td>Credit</td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-17</td>
+                                <td><span class="arrow-icon down">↓</span> Online Subscription <span style="font-size:0.85rem; color:#9ca3af;">• Entertainment</span></td>
+                                <td class="amount debit">-$12.99</td>
+                                <td>Debit</td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-16</td>
+                                <td><span class="arrow-icon down">↓</span> Restaurant <span style="font-size:0.85rem; color:#9ca3af;">• Dining Out</span></td>
+                                <td class="amount debit">-$45.00</td>
+                                <td>Debit</td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-15</td>
+                                <td><span class="arrow-icon down">↓</span> ATM Withdrawal <span style="font-size:0.85rem; color:#9ca3af;">• Cash</span></td>
+                                <td class="amount debit">-$100.00</td>
+                                <td>Debit</td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-14</td>
+                                <td><span class="arrow-icon up">↑</span> Investment Dividend <span style="font-size:0.85rem; color:#9ca3af;">• Investment</span></td>
+                                <td class="amount credit">+$50.00</td>
+                                <td>Credit</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div> <!-- End Transactions Page Content -->
+
+            <!-- Tour Page Content -->
+            <div id="tour-page" class="page-section">
+                <h2 class="welcome-heading">Take a Tour of Secure Bank</h2>
+
+                <div class="tour-section">
+                    <h3>Our Mission & Values</h3>
+                    <p>At Secure Bank, we are committed to empowering your financial journey with unwavering security, innovative solutions, and personalized support. We believe in building lasting relationships based on trust, transparency, and a deep understanding of your unique financial aspirations. Our mission is to provide a banking experience that is not just secure, but also simple, smart, and truly serves your best interests.</p>
+                    <p>We prioritize:
+                        <ul>
+                            <li>**Security:** Protecting your assets and data with cutting-edge technology.</li>
+                            <li>**Innovation:** Continuously developing new tools and services to meet your evolving needs.</li>
+                            <li>**Customer Focus:** Providing exceptional service and support tailored to you.</li>
+                            <li>**Integrity:** Operating with the highest ethical standards and transparency.</li>
+                        </ul>
+                    </p>
+                </div>
+
+                <h3 class="section-heading">What Our Customers Say</h3>
+                <div class="testimonial-grid">
+                    <div class="testimonial-card">
+                        <div class="quote">"Secure Bank has transformed how I manage my finances. The dashboard is incredibly intuitive, and I feel completely secure with their services. Highly recommended!"</div>
+                        <div class="author">- Jane D., Long-term Customer</div>
+                        <div class="rating">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="quote">"I love the ease of use and the quick actions feature. Transferring money has never been this simple. Plus, their customer support is always a call away."</div>
+                        <div class="author">- Michael B., New User</div>
+                        <div class="rating">⭐⭐⭐⭐</div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="quote">"The investment tools are a game-changer for me. I can track my portfolio and make informed decisions right from my dashboard. Secure Bank truly understands modern banking."</div>
+                        <div class="author">- Sarah L., Investor</div>
+                        <div class="rating">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="quote">"Switching to Secure Bank was the best decision. Their mobile app is seamless, and I appreciate the proactive alerts on my spending. It helps me stay on budget."</div>
+                        <div class="author">- David W., Budget Enthusiast</div>
+                        <div class="rating">⭐⭐⭐⭐</div>
+                    </div>
+                </div>
+            </div> <!-- End Tour Page Content -->
+
+        </main>
+    </div>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Secure Bank. All rights reserved.</p>
+            <div class="links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Security</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
